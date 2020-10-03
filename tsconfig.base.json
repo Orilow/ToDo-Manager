@@ -2,7 +2,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
-    "baseUrl": "./",
+    "baseUrl": "src",
     "outDir": "./dist/out-tsc",
     "sourceMap": true,
     "declaration": false,
@@ -15,6 +15,12 @@
     "lib": [
       "es2018",
       "dom"
-    ]
+    ],
+    "paths": {
+      "@app-guards":["app/core/guards/index"],
+      "@app-services":["app/core/services/index"],
+      "@app-models":["app/shared/models/index"],
+      "@app-interceptors":["app/core/interceptors/index"]
+    }
   }
 }
