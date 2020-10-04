@@ -8,13 +8,15 @@ import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
 import { ErrorInterceptor, JwtInterceptor } from '@app-interceptors';
+import { AddEditTaskComponent } from './components/add-edit-task/add-edit-task.component';
 
 
 @NgModule({
   declarations: [
     AppComponent,
     LoginComponent,
-    HomeComponent
+    HomeComponent,
+    AddEditTaskComponent
   ],
   imports: [
     BrowserModule,

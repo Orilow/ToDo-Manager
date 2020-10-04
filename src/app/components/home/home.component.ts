@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import { UserService } from '@app-services';
+import { FormBuilder, FormGroup } from '@angular/forms';
 
 @Component({
   selector: 'app-home',
@@ -7,9 +9,13 @@ import { Component, OnInit } from '@angular/core';
 })
 export class HomeComponent implements OnInit {
 
-  constructor() { }
+  newTaskForm: FormGroup;
+
+  constructor(private userService: UserService) {}
 
   ngOnInit(): void {
+    if (!this.userService.tasks) {
+      this.userService.getAllTasks();
+    }
   }
-
 }

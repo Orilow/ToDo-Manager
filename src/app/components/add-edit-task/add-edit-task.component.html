@@ -1,0 +1,47 @@
+<h1 *ngIf="isAddMode">Создание новой задачи</h1>
+<h1 *ngIf="!isAddMode">Редактирование задачи</h1>
+
+<form class="card-body" [formGroup]="taskForm" (ngSubmit)="onSubmit()">
+    <label for="title" >Название</label>
+    <input class="form-control" type="text" formControlName="title" [ngClass]="{'is-invalid':submitted && f.title.errors}"/>
+    <div *ngIf="submitted && f.title.errors" class="invalid-feedback">
+        <div *ngIf="f.title.errors.required">Название обязательно</div>
+    </div>
+    <label for="description">Описание</label>
+    <textarea class="form-control" formControlName="description" [ngClass]="{'is-invalid':submitted && f.description.errors}"></textarea>
+    <div *ngIf="submitted && f.description.errors" class="invalid-feedback">
+        <div *ngIf="f.description.errors.required">Описание обязательно</div>
+    </div>
+    <label for="type">Тип задачи</label>
+    <select class="form-control" formControlName="type" [ngClass]="{'is-invalid':submitted && f.type.errors}">
+        <option value="">Выберите тип задачи</option>
+        <option *ngFor="let taskType of taskTypes" value="{{taskType.id}}">{{ taskType.typeName }}</option>
+    </select>
+    <div *ngIf="submitted && f.type.errors" class="invalid-feedback">
+        <div *ngIf="f.type.errors.required">Укажите тип задачи</div>
+    </div>
+
+    <div *ngIf="!isAddMode">
+        <label for="status">Статус задачи</label>
+        <select class="form-control" formControlName="status" [attr.disabled]="isAddMode">
+            <option value="Новая задача" selected>Новая задача</option>
+            <option value="В работе">В работе</option>
+            <option value="Завершена">Завершена</option>
+        </select>    
+    </div>
+    <div *ngIf="f.type.value === '1'">
+        <label for="manDay">Оценка трудозатрат</label>
+        <input class="form-control" type="number" formControlName="manDay" [ngClass]="{'is-invalid':submitted && taskForm.controls['manDay'].invalid}" />    
+        <div *ngIf="submitted && f.manDay.errors" class="invalid-feedback">
+            <div *ngIf="f.manDay.errors">Обязательное поле</div>
+        </div>    
+    </div>
+    <label for="dueDate">Срок Реализации</label>
+    <input class="form-control" type="datetime-local" formControlName="dueDate" /> 
+
+
+    <button class="btn btn-primary" type="submit">Подтвердить</button>
+   
+</form>
+
+<a routerLink="/" class="btn btn-link">Отмена</a>
