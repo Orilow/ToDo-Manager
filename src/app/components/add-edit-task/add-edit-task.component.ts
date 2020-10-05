@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { UserService } from '@app-services';
-import { TaskType, TaskStatus } from '@app-models';
+import { TaskType, TaskStatus, UnhandledTask } from '@app-models';
 import { of, Observable } from 'rxjs';
 
 @Component({
@@ -20,6 +20,7 @@ export class AddEditTaskComponent implements OnInit {
   taskStatuses: TaskStatus[];
 
   constructor(private route: ActivatedRoute,
+              private router: Router,
               private formBuilder: FormBuilder,
               private userService: UserService) 
   {
@@ -82,6 +83,9 @@ export class AddEditTaskComponent implements OnInit {
   addTask() {
     let toSend = this.taskForm.value;
     toSend.status = "1";
+    if (toSend.manDay === '') {
+      toSend.manDay = 0;
+    } 
     if (toSend.dueDate) {
       toSend.dueDate += ":00Z";
     } else {
@@ -89,8 +93,10 @@ export class AddEditTaskComponent implements OnInit {
     }
 
     this.loading = true;
-    this.userService.addTask(toSend).subscribe(x => {
+    this.userService.addTask(toSend).subscribe((x: UnhandledTask) => {
       this.loading = false;
+      this.userService.tasks.push(...this.userService.handleTasks([x], this.userService.taskTypes, this.taskStatuses));
+      this.router.navigate(['/']);
     });
   }
 

@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment';
 import { forkJoin } from 'rxjs';
 import { TaskType, TaskStatus, UnhandledTask, Task } from '@app-models';
-import { map } from 'rxjs/internal/operators/map';
 
 
 @Injectable({
@@ -23,22 +22,21 @@ export class UserService {
   }
 
   constructor(private http: HttpClient) {
-    this.getTaskTypes();
-    this.getTaskStatuses();
-   }
-
-  getAllTasks() {
-    forkJoin(
-      this.http.get<UnhandledTask[]>(`${environment.apiUrl}/tasks`),
-      this.getTaskTypes(),
-      this.getTaskStatuses()
-    ).subscribe(result => {
+    this.getAllInfo().subscribe(result => {
       this._taskTypes = result[1];
       this._taskStatuses = result[2];
       this.tasks = this.handleTasks(result[0], this._taskTypes, this._taskStatuses); 
       console.log(this._taskTypes);
       console.log(this._taskStatuses);
-    })
+    });
+   }
+
+  getAllInfo() {
+    return forkJoin(
+      this.getTasks(),
+      this.getTaskTypes(),
+      this.getTaskStatuses()
+    );
   }
 
   handleTasks(unhandledTasks: UnhandledTask[], taskTypes:TaskType[], taskStatuses: TaskStatus[]): Task[] {
@@ -66,6 +64,10 @@ export class UserService {
     return result;
   }
 
+  getTasks() {
+    return this.http.get<UnhandledTask[]>(`${environment.apiUrl}/tasks`);
+  }
+
   getTaskTypes() {
     return this.http.get<TaskType[]>(`${environment.apiUrl}/types`);
   }
@@ -78,5 +80,9 @@ export class UserService {
     return this.http.post<UnhandledTask>(`${environment.apiUrl}/tasks`, 
       {...form, type: {id: form.type}, status: {id: form.status}}, 
       {headers: { 'Content-Type': 'application/json'}});
+  }
+
+  deleteTask(id: string) {
+    return this.http.delete<any>(`${environment.apiUrl}/tasks/${id}`, {headers: { 'Content-Type': 'application/json'}});
   }
 }
