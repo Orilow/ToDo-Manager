@@ -8,7 +8,8 @@ import { AddEditTaskComponent } from './components/add-edit-task/add-edit-task.c
 const routes: Routes = [
   { path: '', component: HomeComponent, canActivate: [AuthGuard]},
   { path: 'login', component: LoginComponent },
-  { path: 'add', component: AddEditTaskComponent, canActivate: [AuthGuard]}
+  { path: 'add', component: AddEditTaskComponent, canActivate: [AuthGuard]},
+  { path: 'edit/:id', component: AddEditTaskComponent, canActivate: [AuthGuard]}
 ];
 
 @NgModule({

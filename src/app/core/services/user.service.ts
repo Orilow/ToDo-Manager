@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject, Observable } from 'rxjs';
 import { TaskType, TaskStatus, UnhandledTask, Task } from '@app-models';
+import { toArray } from 'rxjs/operators';
 
 
 @Injectable({
@@ -10,24 +11,32 @@ import { TaskType, TaskStatus, UnhandledTask, Task } from '@app-models';
 })
 export class UserService {
 
-  private _taskTypes: TaskType[];
-  private _taskStatuses: TaskStatus[];
-  public tasks: Task[];
+  private tasksSubject = new Subject<Task[]>();
+  public tasksObservable = this.tasksSubject.asObservable();
+  public taskList: Task[] = [];
 
-  get taskTypes() {
-    return this._taskTypes;
-  }
-  get taskStatuses() {
-    return this._taskStatuses;
-  }
+  private taskTypesSubject = new Subject<TaskType[]>();
+  public taskTypesObservable = this.taskTypesSubject.asObservable();
+  public taskTypes: TaskType[] = [];
+
+  private taskStatusesSubject = new Subject<TaskStatus[]>();
+  public taskStatusesObservable = this.taskStatusesSubject.asObservable();
+  public taskStatuses: TaskStatus[] = [];
+
 
   constructor(private http: HttpClient) {
+    this.tasksObservable.subscribe(x => this.taskList.push(...x));
+    this.taskTypesObservable.subscribe(x => this.taskTypes.push(...x));
+    this.taskStatusesObservable.subscribe(x => this.taskStatuses.push(...x));
+
     this.getAllInfo().subscribe(result => {
-      this._taskTypes = result[1];
-      this._taskStatuses = result[2];
-      this.tasks = this.handleTasks(result[0], this._taskTypes, this._taskStatuses); 
-      console.log(this._taskTypes);
-      console.log(this._taskStatuses);
+      this.tasksSubject.next(this.handleTasks(result[0]));
+      this.taskTypesSubject.next(result[1]);
+      this.taskStatusesSubject.next(result[2]);
+
+      console.log(this.taskList);
+      console.log(this.taskTypes);
+      console.log(this.taskStatuses);
     });
    }
 
@@ -39,26 +48,15 @@ export class UserService {
     );
   }
 
-  handleTasks(unhandledTasks: UnhandledTask[], taskTypes:TaskType[], taskStatuses: TaskStatus[]): Task[] {
+  handleTasks(unhandledTasks: UnhandledTask[]): Task[] {
     if (unhandledTasks.length === 0) return [];
     let result: Task[] = [];
     for (let unTask of unhandledTasks) {
-      const {id, title, description, manDay, dueDate} = unTask;
-      let newTask = Object.assign({}, id, title, description, manDay, dueDate);
-      for (let type of taskTypes) {
-        if (type.id === unTask.type.id) {
-          newTask.type = { id: type.id, typeName: type.typeName};
-          break;
-        }
-      }
-
-      for (let status of taskStatuses) {
-        if (status.id === unTask.status.id) {
-          newTask.type = { id: status.id, typeName: status.statusName};
-          break;
-        }
-      }
-      result.push(newTask);
+      let newTask:any =  { ...unTask };
+      newTask.type = unTask.type.id + '';
+      newTask.dueDate = unTask.dueDate.substring(0, unTask.dueDate.length - 4);
+      newTask.status = unTask.status.id + '';
+      result.push(newTask as Task);
     }
 
     return result;
@@ -76,10 +74,16 @@ export class UserService {
     return this.http.get<TaskStatus[]>(`${environment.apiUrl}/statuses`);
   }
 
-  addTask(form){
+  addTask(form) {
     return this.http.post<UnhandledTask>(`${environment.apiUrl}/tasks`, 
       {...form, type: {id: form.type}, status: {id: form.status}}, 
       {headers: { 'Content-Type': 'application/json'}});
+  }
+
+  updateTask(form, id) {
+    return this.http.put<UnhandledTask>(`${environment.apiUrl}/tasks/${id}`,
+    { ...form, type: {id: form.type}, status: {id: form.status}},
+    {headers: { 'Content-Type': 'application/json'}})
   }
 
   deleteTask(id: string) {

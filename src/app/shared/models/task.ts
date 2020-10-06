@@ -4,7 +4,7 @@ export class UnhandledTask {
     description: string;
     type: { id: number; };
     status: { id: number; };
-    dueDate: Date;
+    dueDate: string;
     manDay: number;
 }
 
@@ -12,8 +12,8 @@ export class Task {
     id: number;
     title: string;
     description: string;
-    type: TaskType;
-    status: TaskStatus;
+    type: string;
+    status: string;
     dueDate: Date;
     manDay: number;
 }

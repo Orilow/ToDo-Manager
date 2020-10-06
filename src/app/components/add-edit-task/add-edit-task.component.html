@@ -23,10 +23,8 @@
 
     <div *ngIf="!isAddMode">
         <label for="status">Статус задачи</label>
-        <select class="form-control" formControlName="status" [attr.disabled]="isAddMode">
-            <option value="Новая задача" selected>Новая задача</option>
-            <option value="В работе">В работе</option>
-            <option value="Завершена">Завершена</option>
+        <select class="form-control" formControlName="status" [attr.disabled]="isAddMode ? true : null">
+            <option *ngFor="let status of taskStatuses" value="{{status.id}}">{{status.statusName}}</option>
         </select>    
     </div>
     <div *ngIf="f.type.value === '1'">
@@ -40,7 +38,10 @@
     <input class="form-control" type="datetime-local" formControlName="dueDate" /> 
 
 
-    <button class="btn btn-primary" type="submit">Подтвердить</button>
+    <button class="btn btn-primary" type="submit" [disabled]="loading">
+        <span *ngIf="loading" class="spinner-grow spinner-grow-sm mr-1"></span>
+        Подтвердить
+    </button>
    
 </form>
 

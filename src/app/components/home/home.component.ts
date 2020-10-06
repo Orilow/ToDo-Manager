@@ -3,6 +3,7 @@ import { UserService } from '@app-services';
 import { CdkDragDrop, moveItemInArray, transferArrayItem } from '@angular/cdk/drag-drop';
 import { MatDialog } from '@angular/material/dialog';
 import { DialogComponent } from '../dialog/dialog.component';
+import { Task } from '@app-models';
 
 @Component({
   selector: 'app-home',
@@ -21,19 +22,24 @@ export class HomeComponent implements OnInit {
               public dialog: MatDialog) {}
 
   ngOnInit(): void {
-    if (!this.userService.tasks) {
-      this.userService.getAllInfo().subscribe(x => {
-        const tasks = x[0];
-        for (let task of tasks) {
-          if (task.status.id === 1) {
-            this.todo.push(task);
-          } else if (task.status.id === 2) {
-            this.inProgress.push(task);
-          } else {
-            this.done.push(task);
-          }
-        }
-      });
+    if (this.userService.taskList.length === 0) {
+      this.userService.tasksObservable.subscribe(x => {
+        this.distributeTasks(x);
+      }) 
+    } else {
+      this.distributeTasks(this.userService.taskList);
+    }
+  }
+
+  distributeTasks(tasks: Task[]) {
+    for (let task of tasks) {
+      if (task.status === '1') {
+        this.todo.push(task);
+      } else if (task.status === '2') {
+        this.inProgress.push(task);
+      } else {
+        this.done.push(task);
+      }
     }
   }
 

@@ -3,7 +3,6 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { UserService } from '@app-services';
 import { TaskType, TaskStatus, UnhandledTask } from '@app-models';
-import { of, Observable } from 'rxjs';
 
 @Component({
   selector: 'app-add-edit-task',
@@ -11,13 +10,15 @@ import { of, Observable } from 'rxjs';
   styleUrls: ['./add-edit-task.component.sass']
 })
 export class AddEditTaskComponent implements OnInit {
-  private id: string;
+  private id: number;
   isAddMode: boolean;
   taskForm: FormGroup;
   submitted = false;
   loading = false; 
   taskTypes: TaskType[];
   taskStatuses: TaskStatus[];
+
+  get f() { return this.taskForm.controls; }
 
   constructor(private route: ActivatedRoute,
               private router: Router,
@@ -26,10 +27,8 @@ export class AddEditTaskComponent implements OnInit {
   {
     this.taskTypes = userService.taskTypes;
     this.taskStatuses = userService.taskStatuses;
-  }
 
-  ngOnInit(): void {
-    this.id = this.route.snapshot.params['id'];
+    this.id = Number(this.route.snapshot.params['id']);
     this.isAddMode = !this.id;
 
     this.taskForm = this.formBuilder.group({
@@ -40,7 +39,27 @@ export class AddEditTaskComponent implements OnInit {
       status: [''],
       manDay: ['']
     }, {validators: this.additionalValidation.bind(this)});
+
+    if (!this.isAddMode) {
+      if (this.userService.taskList.length === 0) {
+        this.userService.tasksObservable.subscribe(tasks => {
+          this.patchForm(this.taskForm, this.id);
+        });
+      } else {
+        this.patchForm(this.taskForm, this.id);
+      }
+    }
   }
+
+  patchForm(form: FormGroup, id: number) {
+    const taskToEdit = this.userService.taskList.find(x => x.id === id);
+    if (!taskToEdit) {
+      this.router.navigate(['/404']);
+    }
+    form.patchValue(taskToEdit);
+  }
+
+  ngOnInit(): void {}
 
   additionalValidation(control: AbstractControl): {[key:string]: any} | null {
     if (control.get('type').value === '1') {
@@ -59,12 +78,8 @@ export class AddEditTaskComponent implements OnInit {
     return null;
   }
 
-  get f() {
-    return this.taskForm.controls;
-  }
 
   onSubmit() {
-
     this.submitted = true;
 
     if (!this.taskForm.valid) {
@@ -95,12 +110,25 @@ export class AddEditTaskComponent implements OnInit {
     this.loading = true;
     this.userService.addTask(toSend).subscribe((x: UnhandledTask) => {
       this.loading = false;
-      this.userService.tasks.push(...this.userService.handleTasks([x], this.userService.taskTypes, this.taskStatuses));
+      this.userService.taskList.push(...this.userService.handleTasks([x]));
       this.router.navigate(['/']);
     });
   }
 
   updateTask() {
-    console.log('TO DO updateTask');
+    let toSend = this.taskForm.value;
+    if (toSend.dueDate) {
+      toSend.dueDate += ":00Z";
+    } else {
+      toSend.dueDate = "1970-01-01T00:00:00Z";
+    }
+
+    this.userService.updateTask(toSend, this.id).subscribe((x: UnhandledTask) => {
+      this.loading = false;
+      const unchangedTask = this.userService.taskList.find(x => x.id === this.id);
+      const unchangedTaskId = this.userService.taskList.indexOf(unchangedTask);
+      this.userService.taskList[unchangedTaskId] = this.userService.handleTasks([x])[0];
+      this.router.navigate(['/']);
+    }) 
   }
 }
