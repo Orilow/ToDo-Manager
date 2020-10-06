@@ -15,7 +15,7 @@
           [cdkDropListConnectedTo]="[doneList, inProgressList]"
           class="example-list"
           (cdkDropListDropped)="drop($event)">
-          <div class="example-box" *ngFor="let item of todo" cdkDrag routerLink="/edit/{{item.id}}">
+          <div class="example-box" *ngFor="let item of todo" cdkDrag routerLink="/edit/{{item.id}}" attr.taskId="{{item.id}}">
             {{item.title}}
             <button class="btn btn-danger btn-sm" type="button" data-toggle="tooltip" data-placement="top" title="Delete" (click)="openDialog(item.id, 'todo')"></button>
           </div>
@@ -32,7 +32,7 @@
           [cdkDropListConnectedTo]="[todoList, doneList]"
           class="example-list"
           (cdkDropListDropped)="drop($event)">
-          <div class="example-box" *ngFor="let item of inProgress" cdkDrag routerLink="/edit/{{item.id}}">
+          <div class="example-box" *ngFor="let item of inProgress" cdkDrag routerLink="/edit/{{item.id}}" attr.taskId="{{item.id}}">
             {{item.title}}
             <button class="btn btn-danger btn-sm" type="button" data-toggle="tooltip" data-placement="top" title="Delete" (click)="openDialog(item.id, 'todo')"></button>
           </div>
@@ -51,7 +51,7 @@
           [cdkDropListConnectedTo]="[todoList, inProgressList]"
           class="example-list"
           (cdkDropListDropped)="drop($event)">
-          <div class="example-box" *ngFor="let item of done" cdkDrag routerLink="/edit/{{item.id}}">
+          <div class="example-box" *ngFor="let item of done" cdkDrag routerLink="/edit/{{item.id}}" attr.taskId="{{item.id}}">
             {{item.title}}
             <button class="btn btn-danger btn-sm" type="button" data-toggle="tooltip" data-placement="top" title="Delete" (click)="openDialog(item.id, 'todo')"></button>
           </div>

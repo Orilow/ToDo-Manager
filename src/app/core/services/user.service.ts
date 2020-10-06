@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment';
-import { forkJoin, Subject, Observable } from 'rxjs';
+import { forkJoin, Subject, Observable, of } from 'rxjs';
 import { TaskType, TaskStatus, UnhandledTask, Task } from '@app-models';
 import { toArray } from 'rxjs/operators';
 
@@ -81,6 +81,7 @@ export class UserService {
   }
 
   updateTask(form, id) {
+    console.log(form);
     return this.http.put<UnhandledTask>(`${environment.apiUrl}/tasks/${id}`,
     { ...form, type: {id: form.type}, status: {id: form.status}},
     {headers: { 'Content-Type': 'application/json'}})
