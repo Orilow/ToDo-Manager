@@ -11,7 +11,7 @@ import { BrowserAnimationsModule, NoopAnimationsModule } from '@angular/platform
 import { AppComponent } from './app.component';
 import { LoginComponent } from './components/login/login.component';
 import { HomeComponent } from './components/home/home.component';
-import { ErrorInterceptor, JwtInterceptor } from '@app-interceptors';
+import { ErrorInterceptor, JwtInterceptor, FakeBackendInterceptor } from '@app-interceptors';
 import { AddEditTaskComponent } from './components/add-edit-task/add-edit-task.component';
 import { DialogComponent } from './components/dialog/dialog.component';
 
@@ -39,7 +39,8 @@ import { DialogComponent } from './components/dialog/dialog.component';
   ],
   providers: [
     { provide: HTTP_INTERCEPTORS, useClass: ErrorInterceptor, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true }
+    { provide: HTTP_INTERCEPTORS, useClass: JwtInterceptor, multi: true },
+    { provide: HTTP_INTERCEPTORS, useClass: FakeBackendInterceptor, multi: true },
   ],
   bootstrap: [AppComponent]
 })

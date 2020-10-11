@@ -11,7 +11,7 @@ import { User } from '@app-models';
 })
 export class AuthenticationService {
 
-  private userSubject: BehaviorSubject<User> = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('user')));
+  private userSubject: BehaviorSubject<User> = new BehaviorSubject<User>(/*JSON.parse(localStorage.getItem('user'))*/null);
   public userObservable: Observable<User>;
 
   constructor(
@@ -28,6 +28,7 @@ export class AuthenticationService {
   login(username: string, password: string) {
     return this.http.post<any>(`${environment.apiUrl}/login`, { username, password } , {headers: {"Content-Type": "application/json"}})
               .pipe(map(user => {
+                console.log(user);
                 localStorage.setItem('user', JSON.stringify(user));
                 this.userSubject.next(user);
 

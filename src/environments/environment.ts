@@ -3,7 +3,7 @@
 // The list of file replacements can be found in `angular.json`.
 
 export const environment = {
-  apiUrl: 'https://isagile.infosysco.ru/api',
+  apiUrl: 'http://localhost:4000/api',
   production: false
 };
 

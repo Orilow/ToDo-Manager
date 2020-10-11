@@ -1,4 +1,4 @@
 export const environment = {
-  apiUrl: 'https://isagile.infosysco.ru/api',
+  apiUrl: 'http://localhost:4000/api',
   production: true
 };
