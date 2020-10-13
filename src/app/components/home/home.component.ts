@@ -33,18 +33,14 @@ export class HomeComponent implements OnInit {
   }
 
   distributeTasks(tasks: Task[]) {
-    console.log(this.userService.taskStatuses);
-
     this.todoStatus = this.userService.taskStatuses.find(stat => stat.statusName === 'Новая задача');
-    // console.log(todoStatus);
 
     this.inProgressStatus = this.userService.taskStatuses.find(x => x.statusName === 'В работе');
     this.doneStatus = this.userService.taskStatuses.find(x => x.statusName === 'Реализовано');
-    // console.log(inProgressStatus);
     for (let task of tasks) {
-      if (task.status === this.todoStatus.id + '') {
+      if (task.status.id === this.todoStatus.id) {
         this.todo.push(task);
-      } else if (task.status === this.inProgressStatus.id + '') {
+      } else if (task.status.id === this.inProgressStatus.id) {
         this.inProgress.push(task);
       } else {
         this.done.push(task);

@@ -12,10 +12,11 @@ export class Task {
     id: number;
     title: string;
     description: string;
-    type: string;
-    status: string;
+    type: TaskType;
+    status: TaskStatus;
     dueDate: Date;
     manDay: number;
+    userId: number;
 }
 
 export class TaskType {

@@ -4,7 +4,8 @@
 
 export const environment = {
   apiUrl: 'http://localhost:4000/api',
-  production: false
+  production: false,
+  fakeServerDelayMS: 500,
 };
 
 /*

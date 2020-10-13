@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment';
-import { map } from 'rxjs/operators';
+import { map, first } from 'rxjs/operators';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { User } from '@app-models';
 
@@ -11,7 +11,7 @@ import { User } from '@app-models';
 })
 export class AuthenticationService {
 
-  private userSubject: BehaviorSubject<User> = new BehaviorSubject<User>(/*JSON.parse(localStorage.getItem('user'))*/null);
+  private userSubject: BehaviorSubject<User> = new BehaviorSubject<User>(JSON.parse(localStorage.getItem('user')));
   public userObservable: Observable<User>;
 
   constructor(
@@ -26,9 +26,9 @@ export class AuthenticationService {
   }
 
   login(username: string, password: string) {
-    return this.http.post<any>(`${environment.apiUrl}/login`, { username, password } , {headers: {"Content-Type": "application/json"}})
-              .pipe(map(user => {
-                console.log(user);
+    return this.http.post<any>(`${environment.apiUrl}/login`, { username, password } /*, {headers: {"Content-Type": "application/json"}}*/)
+              .pipe(
+                map(user => {
                 localStorage.setItem('user', JSON.stringify(user));
                 this.userSubject.next(user);
 
@@ -38,9 +38,10 @@ export class AuthenticationService {
 
   logout() {
     return this.http.post<any>(`${environment.apiUrl}/logout`, null)
-              .pipe(map(() => {
-                localStorage.removeItem('user');
-                this.userSubject.next(null);
+              .pipe(
+                map(() => {
+                  localStorage.removeItem('user');
+                  this.userSubject.next(null);
               }))
   }
 }
