@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FormGroup, FormBuilder, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
 import { UserService } from '@app-services';
-import { TaskType, TaskStatus, UnhandledTask } from '@app-models';
+import { TaskType, TaskStatus, UnhandledTask, Task } from '@app-models';
 
 @Component({
   selector: 'app-add-edit-task',
@@ -97,37 +97,33 @@ export class AddEditTaskComponent implements OnInit {
 
   addTask() {
     let toSend = this.taskForm.value;
-    toSend.status = "1";
+    toSend.status = 1;
     if (toSend.manDay === '') {
       toSend.manDay = 0;
     } 
-    if (toSend.dueDate) {
-      toSend.dueDate += ":00Z";
-    } else {
-      toSend.dueDate = "1970-01-01T00:00:00Z";
+    if (!toSend.dueDate) {
+      toSend.dueDate = "1970-01-01T00:00";
     }
 
     this.loading = true;
-    this.userService.addTask(toSend).subscribe((x: UnhandledTask) => {
+    this.userService.addTask(toSend).subscribe((x: Task) => {
       this.loading = false;
-      this.userService.taskList.push(...this.userService.handleTasks([x]));
+      this.userService.taskList.push(x);
       this.router.navigate(['/']);
     });
   }
 
   updateTask() {
     let toSend = this.taskForm.value;
-    if (toSend.dueDate) {
-      toSend.dueDate += ":00Z";
-    } else {
-      toSend.dueDate = "1970-01-01T00:00:00Z";
+    if (!toSend.dueDate) {
+      toSend.dueDate = "1970-01-01T00:00";
     }
 
-    this.userService.updateTask(toSend, this.id).subscribe((x: UnhandledTask) => {
+    this.userService.updateTask(toSend, this.id).subscribe((x: Task) => {
       this.loading = false;
       const unchangedTask = this.userService.taskList.find(x => x.id === this.id);
       const unchangedTaskId = this.userService.taskList.indexOf(unchangedTask);
-      this.userService.taskList[unchangedTaskId] = this.userService.handleTasks([x])[0];
+      this.userService.taskList[unchangedTaskId] = x;
       this.router.navigate(['/']);
     }) 
   }

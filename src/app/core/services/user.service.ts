@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from 'environments/environment';
-import { forkJoin, Subject, Observable, of } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
 import { TaskType, TaskStatus, UnhandledTask, Task } from '@app-models';
 import { toArray } from 'rxjs/operators';
 
@@ -30,7 +30,7 @@ export class UserService {
     this.taskStatusesObservable.subscribe(x => this.taskStatuses.push(...x));
 
     this.getAllInfo().subscribe(result => {
-      this.tasksSubject.next(this.handleTasks(result[0]));
+      this.tasksSubject.next(result[0]);
       this.taskTypesSubject.next(result[1]);
       this.taskStatusesSubject.next(result[2]);
 
@@ -63,7 +63,7 @@ export class UserService {
   }
 
   getTasks() {
-    return this.http.get<UnhandledTask[]>(`${environment.apiUrl}/tasks`);
+    return this.http.get<Task[]>(`${environment.apiUrl}/tasks`);
   }
 
   getTaskTypes() {
@@ -75,15 +75,15 @@ export class UserService {
   }
 
   addTask(form) {
-    return this.http.post<UnhandledTask>(`${environment.apiUrl}/tasks`, 
-      {...form, type: {id: form.type}, status: {id: form.status}}, 
+    return this.http.post<Task>(`${environment.apiUrl}/tasks`, 
+      {...form, type: {id: Number(form.type) }, status: { id: Number(form.status) }}, 
       {headers: { 'Content-Type': 'application/json'}});
   }
 
   updateTask(form, id) {
     console.log(form);
-    return this.http.put<UnhandledTask>(`${environment.apiUrl}/tasks/${id}`,
-    { ...form, type: {id: form.type}, status: {id: form.status}},
+    return this.http.put<Task>(`${environment.apiUrl}/tasks/${id}`,
+    { ...form, type: { id: Number(form.type) }, status: { id: Number(form.status) }},
     {headers: { 'Content-Type': 'application/json'}})
   }
 

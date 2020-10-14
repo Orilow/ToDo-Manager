@@ -10,17 +10,21 @@ import { Observable, of, throwError } from 'rxjs';
 import { mergeMap, materialize, delay, dematerialize } from 'rxjs/operators';
 import { environment } from 'environments/environment';
 import { TaskType, TaskStatus, Task } from '@app-models';
+import { ActivatedRoute } from '@angular/router';
 
 const users = [{ id: 1, username: 'test', password: 'test', access_token: "HereIsToken"}];
 
 const types: TaskType[] = [{ id: 1, typeName:'Улучшение' }, { id: 2, typeName: 'Ошибка' }];
-const statuses: TaskStatus[] = [{ id: 1, statusName: 'Новая задача' }, { id: 2, statusName: 'В реализации' }, { id: 3, statusName: 'Завершенные' }];
-const tasks: Task[] = [];
+const statuses: TaskStatus[] = [{ id: 1, statusName: 'Новая задача' }, { id: 2, statusName: 'В работе' }, { id: 3, statusName: 'Реализовано' }];
+const tasks: Task[] = JSON.parse(localStorage.getItem('tasks')) || []; 
+//  bad idea for production, but angular can't change jsons on client side, so I decided to save info
+//  in localStorage because page refresh clear all tasks otherwise
+let tasksCounter = 1;
 
 @Injectable()
 export class FakeBackendInterceptor implements HttpInterceptor {
 
-  constructor() {}
+  constructor(private activeRoute: ActivatedRoute) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     const { url, method, headers, body } = request;
@@ -53,6 +57,7 @@ export class FakeBackendInterceptor implements HttpInterceptor {
           return createTask();
         default:
             // pass through any requests not handled above
+            console.log(this.activeRoute.parent.snapshot);
             return next.handle(request);
       }    
     }
@@ -96,8 +101,11 @@ export class FakeBackendInterceptor implements HttpInterceptor {
       if (!authorizedUser) return unauthorized();
 
       let task = body as Task;
+      task.id = tasksCounter;
+      tasksCounter++;
       task.userId = authorizedUser.id;
       tasks.push(task);
+      localStorage.setItem('tasks', JSON.stringify(tasks));
 
       return created(task);
     }
